@@ -3,11 +3,21 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const password = require("./secrets");
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 
 const app = express();
+
+// Database setup: MongoDB Atlas
+const mongoose = require("mongoose");
+const mongoDB = `mongodb+srv://Toby:${password}@cluster0.nxa8p.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+
+mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
+const db = mongoose.connection;
+
+db.on("error", console.error.bind(console, "MongoDB connection error"));
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
