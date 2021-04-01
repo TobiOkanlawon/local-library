@@ -14,7 +14,7 @@ AuthorSchema.virtual("name").get(function () {
   return `${this.family_name} ${this.first_name}`;
 });
 
-AuthorSchema.virtual("lifespanString").get(function () {
+AuthorSchema.virtual("life_span_string").get(function () {
   const birthDateString = this.date_of_birth
     ? DateTime.fromJSDate(this.date_of_birth).toLocaleString(DateTime.DATE_MED)
     : "";
