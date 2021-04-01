@@ -1,7 +1,7 @@
 const BookModel = require("../models/book");
 const AuthorModel = require("../models/author");
 const GenreModel = require("../models/genre");
-const BookInstance = require("../models/bookinstance");
+const BookInstanceModel = require("../models/bookinstance");
 
 const async = require("async");
 
@@ -12,10 +12,10 @@ exports.index = function (req, res) {
         BookModel.countDocuments({}, callback);
       },
       book_instance_count: function (callback) {
-        BookInstance.countDocuments({}, callback);
+        BookInstanceModel.countDocuments({}, callback);
       },
       book_instance_available_count: function (callback) {
-        BookInstance.countDocuments({ status: "Available" }, callback);
+        BookInstanceModel.countDocuments({ status: "Available" }, callback);
       },
       author_count: function (callback) {
         AuthorModel.countDocuments({}, callback);
@@ -47,8 +47,34 @@ exports.book_list = function (req, res, next) {
 };
 
 // Display detail page for a specific book.
-exports.book_detail = function (req, res) {
-  res.send("NOT IMPLEMENTED: Book detail: " + req.params.id);
+exports.book_detail = function (req, res, next) {
+  async.parallel(
+    {
+      book: function (callback) {
+        BookModel.findById(req.params.id)
+          .populate("author")
+          .populate("genre")
+          .exec(callback);
+      },
+      bookinstance: function (callback) {
+        BookInstanceModel.find({ book: req.params.id }).exec(callback);
+      },
+    },
+    function (err, results) {
+      if (err) {
+        return next(err);
+      } else if (results.book == null) {
+        const err = new Error("Book not found");
+        err.status = 404;
+        return next(err);
+      }
+      res.render("book_detail", {
+        title: results.book.title,
+        book: results.book,
+        book_instances: results.bookinstance,
+      });
+    }
+  );
 };
 
 // Display book create form on GET.
