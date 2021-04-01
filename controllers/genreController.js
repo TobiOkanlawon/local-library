@@ -20,13 +20,13 @@ exports.genre_detail = function (req, res, next) {
   async.parallel(
     {
       genre: function (callback) {
-        Genre.findById(req.params.id).exec(callback);
+        GenreModel.findById(req.params.id).exec(callback);
       },
       genre_books: function (callback) {
         BookModel.find({ genre: req.params.id }).exec(callback);
       },
     },
-    function (err, result) {
+    function (err, results) {
       if (err) {
         return next(err);
       }
